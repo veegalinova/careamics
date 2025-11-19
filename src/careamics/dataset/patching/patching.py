@@ -148,6 +148,7 @@ def prepare_patches_unsupervised(
     axes: str,
     patch_size: Union[list[int], tuple[int]],
     read_source_func: Callable,
+    seed: int | None = None,
 ) -> PatchedOutput:
     """Iterate over data source and create an array of patches.
 
@@ -182,7 +183,7 @@ def prepare_patches_unsupervised(
             sample = reshape_array(sample, axes)
 
             # generate patches, return a generator
-            patches, _ = extract_patches_sequential(sample, patch_size=patch_size)
+            patches, _ = extract_patches_sequential(sample, patch_size=patch_size, seed=seed)
 
             # convert generator to list and add to all_patches
             all_patches.append(patches)
@@ -210,6 +211,7 @@ def prepare_patches_supervised_array(
     axes: str,
     data_target: NDArray,
     patch_size: Union[list[int], tuple[int]],
+    seed: int | None = None,
 ) -> PatchedOutput:
     """Iterate over data source and create an array of patches.
 
@@ -244,7 +246,7 @@ def prepare_patches_supervised_array(
 
     # generate patches, return a generator
     patches, patch_targets = extract_patches_sequential(
-        reshaped_sample, patch_size=patch_size, target=reshaped_target
+        reshaped_sample, patch_size=patch_size, target=reshaped_target, seed=seed
     )
 
     if patch_targets is None:
@@ -265,6 +267,7 @@ def prepare_patches_unsupervised_array(
     data: NDArray,
     axes: str,
     patch_size: Union[list[int], tuple[int]],
+    seed: int | None = None,
 ) -> PatchedOutput:
     """
     Iterate over data source and create an array of patches.
@@ -295,6 +298,6 @@ def prepare_patches_unsupervised_array(
     means, stds = compute_normalization_stats(reshaped_sample)
 
     # generate patches, return a generator
-    patches, _ = extract_patches_sequential(reshaped_sample, patch_size=patch_size)
+    patches, _ = extract_patches_sequential(reshaped_sample, patch_size=patch_size, seed=seed)
 
     return PatchedOutput(patches, None, Stats(means, stds), Stats((), ()))

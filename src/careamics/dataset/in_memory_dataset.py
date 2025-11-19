@@ -150,6 +150,7 @@ class InMemoryDataset(Dataset):
                     self.axes,
                     self.input_targets,
                     self.patch_size,
+                    seed=self.data_config.seed,
                 )
             elif isinstance(self.inputs, list) and isinstance(self.input_targets, list):
                 return prepare_patches_supervised(
@@ -158,6 +159,7 @@ class InMemoryDataset(Dataset):
                     self.axes,
                     self.patch_size,
                     self.read_source_func,
+                    seed=self.data_config.seed,
                 )
             else:
                 raise ValueError(
@@ -171,6 +173,7 @@ class InMemoryDataset(Dataset):
                     self.inputs,
                     self.axes,
                     self.patch_size,
+                    seed=self.data_config.seed,
                 )
             else:
                 return prepare_patches_unsupervised(
@@ -178,6 +181,7 @@ class InMemoryDataset(Dataset):
                     self.axes,
                     self.patch_size,
                     self.read_source_func,
+                    seed=self.data_config.seed,
                 )
 
     def __len__(self) -> int:
@@ -276,8 +280,9 @@ class InMemoryDataset(Dataset):
         # number of patches to extract (either percentage rounded or minimum number)
         n_patches = max(round(total_patches * percentage), minimum_patches)
 
-        # get random indices
-        indices = np.random.choice(total_patches, n_patches, replace=False)
+        # get random indices using seeded random number generator
+        rng = np.random.default_rng(seed=self.data_config.seed)
+        indices = rng.choice(total_patches, n_patches, replace=False)
 
         # extract patches
         val_patches = self.data[indices]

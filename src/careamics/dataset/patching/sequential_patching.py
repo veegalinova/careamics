@@ -111,6 +111,7 @@ def _compute_patch_views(
     step: tuple[int, ...],
     output_shape: list[int],
     target: np.ndarray | None = None,
+    seed: int | None = None,
 ) -> np.ndarray:
     """
     Compute views of an array corresponding to patches.
@@ -133,7 +134,7 @@ def _compute_patch_views(
     np.ndarray
         Array with views dimension.
     """
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(seed=seed)
 
     if target is not None:
         arr = np.stack([arr, target], axis=0)
@@ -152,6 +153,7 @@ def extract_patches_sequential(
     arr: np.ndarray,
     patch_size: Union[list[int], tuple[int, ...]],
     target: np.ndarray | None = None,
+    seed: int | None = None,
 ) -> tuple[np.ndarray, np.ndarray | None]:
     """
     Generate patches from an array in a sequential manner.
@@ -167,6 +169,8 @@ def extract_patches_sequential(
         Patch sizes in each dimension.
     target : Optional[np.ndarray], optional
         Target array, by default None.
+    seed: int | None, optional
+        Random seed, by default None.
 
     Returns
     -------
@@ -200,6 +204,7 @@ def extract_patches_sequential(
         step=window_steps,
         output_shape=output_shape,
         target=target,
+        seed=seed,
     )
 
     if target is not None:

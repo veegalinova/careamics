@@ -258,8 +258,9 @@ class PathIterableDataset(IterableDataset):
         total_files = self.get_number_of_files()
         n_files = max(round(percentage * total_files), minimum_number)
 
-        # get random indices
-        indices = np.random.choice(total_files, n_files, replace=False)
+        # get random indices using seeded random number generator
+        rng = np.random.default_rng(seed=self.data_config.seed)
+        indices = rng.choice(total_files, n_files, replace=False)
 
         # extract files
         val_files = [self.data_files[i] for i in indices]

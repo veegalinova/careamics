@@ -418,6 +418,12 @@ class VAEModule(L.LightningModule):
         """
         x, *target = batch
 
+        if hasattr(x, "data"):
+            x = x.data
+        if target and hasattr(target[0], "data"):
+            target = target[0].data
+
+        assert torch.isfinite(x).all(), "Input tensor contains non-finite values"
         # Forward pass
         out = self.model(x)
         if not self.supervised_mode:
@@ -481,6 +487,11 @@ class VAEModule(L.LightningModule):
         """
         x, *target = batch
 
+        if hasattr(x, "data"):
+            x = x.data
+        if target and hasattr(target[0], "data"):
+            target = target[0].data
+        assert torch.isfinite(x).all(), "Input tensor contains non-finite values"
         # Forward pass
         out = self.model(x)
         if not self.supervised_mode:
@@ -531,6 +542,11 @@ class VAEModule(L.LightningModule):
         """
         if self.algorithm_config.algorithm == "microsplit":
             x, *aux = batch
+
+            if x.hasattr("data"):
+                x = x.data
+            if aux and aux[0].hasattr("data"):
+                aux = aux[0].data
             # Reset model for inference with spatial dimensions only (H, W)
             self.model.reset_for_inference(x.shape[-2:])
 
@@ -570,7 +586,7 @@ class VAEModule(L.LightningModule):
                 x = batch[0] if isinstance(batch, list | tuple) else batch
                 aux = []
                 self.model.reset_for_inference(x.shape)
-
+            x = x.to(self.device)
             mmse_list = []
             for _ in range(self.algorithm_config.mmse_count):
                 # apply test-time augmentation if available
@@ -619,12 +635,19 @@ class VAEModule(L.LightningModule):
             Optimizer and learning rate scheduler.
         """
         # instantiate optimizer
-        optimizer_func = get_optimizer(self.optimizer_name)
-        optimizer = optimizer_func(self.model.parameters(), **self.optimizer_params)
+        # optimizer_func = get_optimizer(self.optimizer_name)
+        # optimizer = optimizer_func(self.model.parameters(), **self.optimizer_params)
 
-        # and scheduler
-        scheduler_func = get_scheduler(self.lr_scheduler_name)
-        scheduler = scheduler_func(optimizer, **self.lr_scheduler_params)
+        # # and scheduler
+        # scheduler_func = get_scheduler(self.lr_scheduler_name)
+        # scheduler = scheduler_func(optimizer, **self.lr_scheduler_params)
+
+        from torch import optim
+
+        optimizer = optim.Adamax(self.model.parameters(), lr=3e-4, weight_decay=0)
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer, "min", patience=10, factor=0.5, min_lr=1e-12
+        )
 
         return {
             "optimizer": optimizer,

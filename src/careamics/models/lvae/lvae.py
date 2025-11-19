@@ -103,14 +103,15 @@ class LadderVAE(nn.Module):
         # -------------------------------------------------------
         # Model attributes -> Hardcoded
         self.model_type = ModelType.LadderVae  # TODO remove !
-        self.encoder_blocks_per_layer = 1
-        self.decoder_blocks_per_layer = 1
+        self.encoder_blocks_per_layer = 5
+        self.decoder_blocks_per_layer = 5
         self.bottomup_batchnorm = True
         self.topdown_batchnorm = True
         self.topdown_conv2d_bias = True
         self.gated = True
         self.encoder_res_block_kernel = 3
         self.decoder_res_block_kernel = 3
+        self.first_conv_kernel = 5  # First bottom-up conv kernel size (can be 5 to match HDN)
         self.encoder_res_block_skip_padding = False
         self.decoder_res_block_skip_padding = False
         self.merge_type = "residual"
@@ -288,11 +289,11 @@ class LadderVAE(nn.Module):
         conv_block = self.encoder_conv_op(
             in_channels=self.color_ch,
             out_channels=self.encoder_n_filters,
-            kernel_size=self.encoder_res_block_kernel,
+            kernel_size=self.first_conv_kernel,
             padding=(
                 0
                 if self.encoder_res_block_skip_padding
-                else self.encoder_res_block_kernel // 2
+                else self.first_conv_kernel // 2
             ),
             stride=init_stride,
         )

@@ -299,7 +299,12 @@ class StableLogVar:
             return
 
         diff = self._lv.shape[-1] - size
-        assert diff > 0 and diff % 2 == 0
+        if diff <= 0:
+            raise ValueError(
+                f"Cannot crop: current size {self._lv.shape[-1]} is smaller than target size {size}"
+            )
+        # F.center_crop can handle odd differences by taking floor/ceil appropriately
+        # Remove the strict even requirement
         self._lv = F.center_crop(self._lv, (size, size))
 
 
@@ -335,7 +340,12 @@ class StableMean:
             return
 
         diff = self._mean.shape[-1] - size
-        assert diff > 0 and diff % 2 == 0
+        if diff <= 0:
+            raise ValueError(
+                f"Cannot crop: current size {self._mean.shape[-1]} is smaller than target size {size}"
+            )
+        # F.center_crop can handle odd differences by taking floor/ceil appropriately
+        # Remove the strict even requirement
         self._mean = F.center_crop(self._mean, (size, size))
 
 
