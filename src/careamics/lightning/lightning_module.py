@@ -520,10 +520,6 @@ class VAEModule(L.LightningModule):
         out = self.model(x)
         if not self.supervised_mode:
             target = x
-        else:
-            target = target[
-                0
-            ]  # hacky way to unpack. #TODO maybe should be fixed on the dataset level
 
         # Update loss parameters
         self.loss_parameters.kl_params.current_epoch = self.current_epoch
@@ -587,10 +583,7 @@ class VAEModule(L.LightningModule):
         out = self.model(x)
         if not self.supervised_mode:
             target = x
-        else:
-            target = target[
-                0
-            ]  # hacky way to unpack. #TODO maybe should be fixed on the datasel level
+
         # Compute loss
         loss = self.loss_func(
             model_outputs=out,
